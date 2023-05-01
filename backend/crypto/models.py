@@ -12,6 +12,7 @@ class Timestamp(models.Model):
         
 
 class CoinSymbol(Timestamp):
+    in_sync = models.BooleanField()
     coin_symbol = models.CharField(max_length=10, unique=True, verbose_name="coin_symbol")
     
     class Meta:
