@@ -14,7 +14,6 @@ class Timestamp(models.Model):
         abstract: bool = True
     
 
-
 class CoinSymbol(Timestamp):
     in_sync = models.BooleanField()
     coin_uuid = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, verbose_name=_("coin_uuid"))
@@ -35,7 +34,6 @@ class CoinSymbol(Timestamp):
     def get_absolute_url(self) -> str:
         return reverse("CoinSymbol_detail", kwargs={"pk": self.pk})
     
-
 
 class CoinPriceAllChartMarket(Timestamp):
     coin_symbol = models.ForeignKey(CoinSymbol, verbose_name=_("coin_symbol_fore"), on_delete=models.CASCADE)
