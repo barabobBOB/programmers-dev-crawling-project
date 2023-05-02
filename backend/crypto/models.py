@@ -2,6 +2,9 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+import uuid
+from typing import * 
+
 
 class Timestamp(models.Model):
     created_at = models.DateTimeField(auto_now=True)
@@ -9,21 +12,29 @@ class Timestamp(models.Model):
         
     class Meta:
         abstract: bool = True
-        
+    
+
 
 class CoinSymbol(Timestamp):
     in_sync = models.BooleanField()
-    coin_symbol = models.CharField(max_length=10, unique=True, verbose_name="coin_symbol")
+    coin_uuid = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, verbose_name=_("coin_uuid"))
+    coin_symbol = models.CharField(max_length=10, unique=True, verbose_name=_("coin_symbol"))
     
     class Meta:
-        verbose_name = _("CoinSymbol")
-        verbose_name_plural = _("CoinSymbols")
+        verbose_name: str = _("CoinSymbol")
+        verbose_name_plural: str = _("CoinSymbols")
+        
+        indexes: List[models.Index] = [
+            models.Index(fields=["coin_uuid"])
+        ]
+        
 
     def __str__(self) -> str:
         return self.coin_symbol
 
     def get_absolute_url(self) -> str:
         return reverse("CoinSymbol_detail", kwargs={"pk": self.pk})
+    
 
 
 class CoinPriceAllChartMarket(Timestamp):

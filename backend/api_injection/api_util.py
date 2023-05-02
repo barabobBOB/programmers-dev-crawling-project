@@ -2,8 +2,8 @@ from typing import *
 import requests
 
 
-UPBIT_API_URL = "https://api.upbit.com/v1/market/all?isDetails=false"
-BITHUM_API_URL = "https://api.bithumb.com/public/ticker/ALL_KRW"
+UPBIT_API_URL = "https://api.upbit.com/v1/"
+BITHUM_API_URL = "https://api.bithumb.com/public/"
 
 
 def get_json_from_url(url: str) -> Dict:
