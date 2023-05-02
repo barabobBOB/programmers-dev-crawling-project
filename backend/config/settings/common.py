@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django_filters',
     
     'accounts',
-    'crypto',
+    'crypto',   
 ]
 
 MIDDLEWARE = [

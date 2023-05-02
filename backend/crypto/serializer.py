@@ -5,11 +5,15 @@ from typing import *
 from .models import * 
 
 
-            
 class CoinListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoinSymbol
         fields = ["coin_symbol"]
+        
+class CoinPriceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoinPriceAllChartMarket
+        fields = ["coin_symbol", "price", "trade_timestamp"]
         
 
 # Filter
