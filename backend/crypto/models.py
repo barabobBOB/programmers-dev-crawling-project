@@ -15,17 +15,18 @@ class Timestamp(models.Model):
     
 
 class CoinSymbol(Timestamp):
+    coin_symbol = models.CharField(max_length=10, unique=True, primary_key=True, verbose_name=_("coin_symbol"))
     coin_uuid   = models.UUIDField(unique=True, default=uuid.uuid4, verbose_name=_("coin_uuid"))
     is_sync     = models.BooleanField(default=False, verbose_name=_("coin_sync"))
-    coin_symbol = models.CharField(max_length=10, unique=True, 
-                                   primary_key=True, verbose_name=_("coin_symbol"))
     
     class Meta:
         verbose_name: str        = _("CoinSymbol")
         verbose_name_plural: str = _("CoinSymbols")
         
         indexes: List[models.Index] = [
-            models.Index(fields=["coin_uuid"])
+            models.Index(
+                fields=["coin_uuid", "coin_symbol"],
+            )
         ]
         
     def __str__(self) -> str:
@@ -38,8 +39,9 @@ class CoinPriceAllChartMarket(Timestamp):
     trade_timestamp = models.DateField(verbose_name="all_coin_trade_time")         
 
     class Meta:
-        verbose_name        = _("CoinPriceAllChartMarket")
-        verbose_name_plural = _("CoinPriceAllChartMarkets")
+        verbose_name: str        = _("CoinPriceAllChartMarket")
+        verbose_name_plural: str = _("CoinPriceAllChartMarkets")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.coin_symbol
+

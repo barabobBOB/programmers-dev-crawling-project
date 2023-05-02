@@ -8,8 +8,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from api_injection.cryto_apis_arch import CoinListDuplicateRemover
-from api_injection.api_util import get_changed_coins
-
 from .models import * 
 from .serializer import *
 
@@ -36,6 +34,8 @@ class MarketCoinListCreateViewSet(APIView):
                 qs = self.queryset.filter(coin_symbol=data)
                 if not qs:
                     self.queryset.create(coin_symbol=data, is_sync=True)
+                
+                # 이게 필요있는지는 고민해볼것 
                 elif Q(qs.filter(coin_symbol=data) & qs.filter(is_sync=False)):
                     self.queryset.update(is_sync=True)
             return Response({"coin_list": self.coin_name_list}, status=status.HTTP_201_CREATED)

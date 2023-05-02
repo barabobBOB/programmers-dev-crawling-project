@@ -3,8 +3,8 @@ import datetime
 import requests
 import pandas as pd
 from typing import *
-from .api_util import get_json_from_url
-from .api_util import BITHUM_API_URL, UPBIT_API_URL
+from api_util import get_json_from_url
+from api_util import BITHUM_API_URL, UPBIT_API_URL
 
 
 
