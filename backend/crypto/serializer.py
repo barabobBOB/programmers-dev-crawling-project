@@ -5,14 +5,6 @@ from typing import *
 from .models import * 
 
 
-    
-class CoinSymbolSerializer(serializers.ModelSerializer):    
-    in_sync = serializers.BooleanField()
-    
-    class Meta:
-        model = CoinSymbol
-        fields = ["in_sync"]
-    
             
 class CoinListSerializer(serializers.ModelSerializer):
     class Meta:
