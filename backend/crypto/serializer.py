@@ -2,15 +2,20 @@ from rest_framework import serializers
 from django_filters import rest_framework
 
 from typing import *
-from .models import * 
+from .models import *
 
 
-            
+class CoinTradingDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoinPriceAllChartMarket
+        fields = ["coin_symbol"]
+
+
 class CoinListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoinSymbol
         fields = ["coin_symbol"]
-        
+
 
 # Filter
 class UpperCaseFilter(rest_framework.CharFilter):
@@ -22,7 +27,8 @@ class UpperCaseFilter(rest_framework.CharFilter):
 
 class CoinListUpperFilter(rest_framework.FilterSet):
     coin_symbol = UpperCaseFilter(lookup_expr="icontains")
-    
+
     class Meta:
         model = CoinSymbol
         fields = ["coin_symbol"]
+

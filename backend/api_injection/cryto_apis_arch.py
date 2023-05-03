@@ -69,6 +69,13 @@ class ApiBasicArchitecture:
         self.date: Optional[str] = date
         self.count: Optional[int] = count
 
+    def header_to_json(self, url: str) -> Any:
+        headers: Dict[str, str] = {"accept": "application/json"}
+        response = requests.get(url, headers=headers)
+        info = response.json()
+
+        return info
+
     def __namesplit__(self) -> str:
         return self.name.upper()
 
@@ -81,7 +88,9 @@ class BithumCandlingAPI(ApiBasicArchitecture):
 
     # 시간별 통합으로 되어 있음
     def bithum_candle_price(self, mint: str) -> List:
-        return get_json_from_url(f"{BITHUM_API_URL}/candlestick/{self.name}_KRW/{mint}")
+        return self.header_to_json(
+            f"{BITHUM_API_URL}/candlestick/{self.name}_KRW/{mint}"
+        )
 
 
 class UpBitCandlingAPI(ApiBasicArchitecture):
@@ -110,53 +119,62 @@ class UpBitCandlingAPI(ApiBasicArchitecture):
         )
 
     def upbit_candle_price(self, mint: int) -> List:
-        return get_json_from_url(
+        return self.header_to_json(
             f"{UPBIT_API_URL}/candles/minutes/{mint}?{self.name_candle_count}"
         )
 
     # 상위 200개
     def upbit_candle_day_price(self) -> List:
-        return get_json_from_url(
+        return self.header_to_json(
             f"{UPBIT_API_URL}/candles/days?{self.name_candle_count}"
         )
 
     # 날짜 커스텀
     def upbit_candle_day_custom_price(self) -> List:
-        return get_json_from_url(
+        return self.header_to_json(
             f"{UPBIT_API_URL}/candles/days?{self.name_candle_count_date}"
         )
 
 
-def api_injectional(api: Any, inject_parmeter: Any) -> pd.DataFrame:
+def api_injectional(
+    api: Any, inject_parmeter: Any, coin_name: Optional[str] = None
+) -> pd.DataFrame:
     # API 호출
-    api_init = api
+    try:
+        api_init = api
 
-    api_init = pd.DataFrame(
-        inject_parmeter,
-        columns=[
-            "timestamp",
-            "opening_price",
-            "trade_price",
-            "high_price",
-            "low_price",
-            "candle_acc_trade_volume",
-        ],
-    )
+        api_init = pd.DataFrame(
+            inject_parmeter,
+            columns=[
+                "timestamp",
+                "opening_price",
+                "trade_price",
+                "high_price",
+                "low_price",
+                "candle_acc_trade_volume",
+            ],
+        )
+        api_init["coin_symbol"] = coin_name
+        api_init["timestamp"] = api_init["timestamp"].apply(
+            lambda x: time.strftime(r"%Y-%m-%d %H:%M", time.localtime(x / 1000))
+        )
+        api_init["opening_price"] = api_init["opening_price"].apply(lambda x: float(x))
+        api_init["trade_price"] = api_init["trade_price"].apply(lambda x: float(x))
+        api_init["high_price"] = api_init["high_price"].apply(lambda x: float(x))
+        api_init["low_price"] = api_init["low_price"].apply(lambda x: float(x))
 
-    api_init["timestamp"] = api_init["timestamp"].apply(
-        lambda x: time.strftime(r"%Y-%m-%d %H:%M", time.localtime(x / 1000))
-    )
+        time_data = api_init["timestamp"].str.split(" ", expand=True)
+        api_init["timestamp"] = time_data[0]
 
-    api_init["opening_price"] = api_init["opening_price"].apply(lambda x: float(x))
-    api_init["trade_price"] = api_init["trade_price"].apply(lambda x: float(x))
-    api_init["high_price"] = api_init["high_price"].apply(lambda x: float(x))
-    api_init["low_price"] = api_init["low_price"].apply(lambda x: float(x))
-
-    return api_init
+        return pd.DataFrame(api_init)
+    except (AttributeError, KeyError):
+        print("끝")
 
 
 # 결과 출력하기
-def upbit_trade_all_list(time_data: List[datetime.datetime]) -> List[pd.DataFrame]:
+def upbit_trade_all_list(
+    time_data: List[datetime.datetime], coin_name: Optional[str] = None
+) -> List[pd.DataFrame]:
     timer: List[datetime.datetime] = time_data
     result_upbit_data = []
 
@@ -165,19 +183,27 @@ def upbit_trade_all_list(time_data: List[datetime.datetime]) -> List[pd.DataFram
             a = dt.strftime("%Y-%m-%d %H:%M:%S")
 
             upbit_init = UpBitCandlingAPI(
-                name="BTC", count=200, date=a
+                name=coin_name, count=200, date=a
             ).upbit_candle_day_custom_price()
 
             # API 호출
-            market_init = api_injectional(upbit_init, upbit_init)
+            market_init = api_injectional(upbit_init, upbit_init, coin_name=coin_name)
 
-            if market_init.empty:
+            if market_init is None:
                 continue
+
             result_upbit_data.append([market_init])
         except requests.exceptions.JSONDecodeError:
             continue
 
     return result_upbit_data
+
+
+def bithum_trade_all_list(coin_name: Optional[str] = None):
+    bithum_init = BithumCandlingAPI(name=coin_name).bithum_candle_price(mint="24h")
+    bithum_init = api_injectional(bithum_init, bithum_init.get("data"), coin_name)
+
+    return bithum_init
 
 
 # 데이터 병합
@@ -186,16 +212,17 @@ def upbit_trade_data_concat(data: List) -> pd.DataFrame:
     return result_upbit_data_concat
 
 
-bithum_init = BithumCandlingAPI(name="BTC").bithum_candle_price(mint="24h")
-bithum_init = api_injectional(bithum_init, bithum_init.get("data"))
+def coin_trading_data_concatnate(coin_name: str):
+    bithum_init = bithum_trade_all_list(coin_name=coin_name)
+    upbit_init = upbit_trade_all_list(coin_name=coin_name, time_data=making_time())
+    upbit_init = upbit_trade_data_concat(upbit_init)
 
-upbit_init = upbit_trade_all_list(time_data=making_time())
-upbit_init = upbit_trade_data_concat(upbit_init)
+    merge_data = (
+        pd.concat([upbit_init, bithum_init], ignore_index=True)
+        .groupby(["timestamp", "coin_symbol"])
+        .mean()
+        .reset_index()
+    )
 
+    return merge_data.to_dict(orient="records")
 
-merge_data = (
-    pd.concat([upbit_init, bithum_init], ignore_index=True)
-    .groupby(["timestamp"])
-    .mean()
-)
-print(merge_data)

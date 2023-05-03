@@ -1,26 +1,21 @@
-from typing import Any
+from typing import *
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
-from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from api_injection.cryto_apis_arch import CoinListDuplicateRemover
+from api_injection.cryto_apis_arch import (
+    CoinListDuplicateRemover, coin_trading_data_concatnate
+)
 from .models import *
 from .serializer import *
 
 
-# bithum_init = BithumCandlingAPI(name="BTC").bithum_candle_price(mint="24h")
-# bithum_init = api_injectional(bithum_init, bithum_init.get("data"))
-
-# upbit_init = upbit_trade_all_list(time_data=making_time())
-# upbit_init = upbit_trade_data_concat(upbit_init)
-
-
 # coin symbol 동기화
-class MarketCoinListCreateViewSet(APIView):
+class MarketCoinListCreateInitalization(APIView):
     queryset = CoinSymbol.objects.all()
 
     def __init__(self, **kwargs: Any) -> None:
@@ -45,10 +40,35 @@ class MarketCoinListCreateViewSet(APIView):
             )
 
 
+# 모든 코인 거래 데이터 생성
+class CoinTradingCreateInitalization(ListCreateAPIView):
+    queryset = CoinSymbol.objects.all()
+    serializer_class = CoinTradingDataSerializer
+    lookup_field: str = "coin_symbol"
+    
+    def perform_create(self, serializer):
+        #{'timestamp': '2023-02-07', 
+        # 'coin_symbol': 'DOGE', 
+        # 'opening_price': 116.65, 
+        # 'trade_price': 115.3,
+        # 'high_price': 117.85, 
+        # 'low_price': 113.8}
+        qs = Q(self.queryset.filter(coin_symbol=serializer) & self.queryset.filter(is_sync=True))  
+        if qs:
+            data_ = coin_trading_data_concatnate(coin_name=serializer["coin_symbol"])
+            for data in data_:
+                self.queryset.create(
+                    coin_symbol=data["coin_symbol"],
+                    price=data["trade_price"],
+                    trade_timestamp=data["timestamp"]
+                ).save()
+      
+      
 # 코인 리스트 필터
-class CoinListViewSet(ListAPIView):
+class CoinTotalListViewInitailization(ListAPIView):
     queryset = CoinSymbol.objects.all()
     serializer_class = CoinListSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CoinListUpperFilter
     filterset_fields = ["coin_symbol"]
+
