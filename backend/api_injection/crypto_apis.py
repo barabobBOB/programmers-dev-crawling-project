@@ -108,7 +108,7 @@ class bithumbAPI(ExchangeAPI):
             _from = datetime.strptime(_from,'%Y-%m-%d') if _from else datetime(2000,1,1)
             _to = datetime.strptime(_to,'%Y-%m-%d') if _to else datetime.now()
             res = self.get(endpoint)['data']
-            
+            time.sleep(0.02) # rps 135
             result = []
             
             for r in res:

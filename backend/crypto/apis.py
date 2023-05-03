@@ -1,6 +1,7 @@
 from typing import Any
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
+from django.http import HttpResponse
 
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
 from rest_framework.views import APIView
@@ -52,6 +53,8 @@ class CoinListViewSet(ListAPIView):
     filterset_fields = ['coin_symbol']
 
 # 공통된 코인 리스트 업데이트
+# 현재 DB에 저장된 코인들 외에 다른 공통된 코인이 생기면 그 코인만 업데이트시킴
+# 반대로 DB에 저장되어 있던 코인이 공통된 코인 목록에서 제외되면(한 거래소에서 상폐시켰을때) 그 코인은 DB에서 삭제시켜야함 : 아직 미구현
 class UpdateCoinList(CreateAPIView):
     lookup_field = "coin_symbol"
     def post(self, request, format=None):
@@ -63,7 +66,6 @@ class UpdateCoinList(CreateAPIView):
         serializer = CoinListSerializer(data=data, many=True)
         if not serializer.is_valid():
             valid_data = serializer.validated_data
-            print(valid_data)
             serializer = CoinListSerializer(data=valid_data, many=True)
         
         if serializer.is_valid():
@@ -76,24 +78,51 @@ class UpdateCoinList(CreateAPIView):
 # 특정 코인 가격 업데이트 후, 업데이트 한 데이터 Response
 class UpdateCoinPrice(APIView):
     def post(self, request, coin_symbol, format=None):
-        upbit = upbitAPI()
+        upbit = upbitAPI()  
         bithumb = bithumbAPI()
-    
-        cnt = CoinPriceAllChartMarket.objects.filter(coin_symbol=coin_symbol).delete()
-        print(cnt)
-        candles = bithumb.get_candles(coin_symbol)
-
-        serializer = CoinPriceSerializer(data=candles, many=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        if coin_symbol == 'ALL':
+            coins = CoinSymbol.objects.all()
+            coinList = []
+            
+            coinUpdateCnt = 0
+            try:
+                for coin in coins:
+                    c = CoinPriceAllChartMarket.objects.filter(coin_symbol=coin.coin_symbol).last()
+                    if c:
+                        continue
+                    else:
+                        candles = bithumb.get_candles(coin.coin_symbol)
+                        serializer = CoinPriceSerializer(data=candles, many=True)
+                        
+                        if serializer.is_valid():
+                            serializer.save()
+                            coinUpdateCnt += 1
+                            print(coin.coin_symbol)
+            except Exception as e:
+                print(e)
+                return Response({'success': False, 'update_coin_count': 0})
+            else:
+                return Response({'success': True, 'update_count': coinUpdateCnt})
+            
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+            CoinPriceAllChartMarket.objects.filter(coin_symbol=coin_symbol).delete()
+
+            candles = bithumb.get_candles(coin_symbol)
+
+            serializer = CoinPriceSerializer(data=candles, many=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # 특정 코인의 과거 가격 데이터
 class CoinPriceView(ListAPIView):
-    queryset = CoinPriceAllChartMarket.objects.all()
     serializer_class = CoinPriceSerializer
-    
     lookup_field = 'coin_symbol'
+
+    def get_queryset(self):
+        coin_symbol = self.kwargs.get(self.lookup_field)
+        queryset = CoinPriceAllChartMarket.objects.filter(coin_symbol=coin_symbol).order_by('trade_timestamp')
+        return queryset

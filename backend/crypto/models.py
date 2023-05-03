@@ -43,5 +43,5 @@ class CoinPriceAllChartMarket(Timestamp):
         verbose_name_plural: str = _("CoinPriceAllChartMarkets")
 
     def __str__(self) -> str:
-        return self.coin_symbol
+        return str(self.coin_symbol)
 

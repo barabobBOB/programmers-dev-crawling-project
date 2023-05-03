@@ -21,6 +21,4 @@ urlpatterns = [
     path("api-v1/coinprice/<str:coin_symbol>",
          apis.CoinPriceView.as_view(),
          name="coin_price"),
-    
-    
 ]
