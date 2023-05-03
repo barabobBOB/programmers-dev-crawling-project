@@ -3,8 +3,8 @@ import datetime
 import requests
 import pandas as pd
 
-from typing import *
-
+from typing import List, Dict, Optional, Any
+from collections import Counter
 from .api_util import get_json_from_url
 from .api_util import BITHUM_API_URL, UPBIT_API_URL
 
@@ -43,11 +43,10 @@ class CoinListDuplicateRemover:
         return [i for i in self.bithumb_list["data"]]
 
     def get_all_coins_without_duplicate(self) -> List[str]:
-        total: List[str] = self.get_krw_coins_from_upbit() + self.get_all_coins_from_bithumb() 
-        result = [elem for elem, count in Counter(total).most_common() if count >= 2]
-        return result
-         
-        
+        total: List[str] = self.get_krw_coins_from_upbit() + self.get_all_coins_from_bithumb()
+        return [elemt for elemt, index in Counter(total).most_common() if index >= 2]
+
+
 class ApiBasicArchitecture:
     """
     기본 클래스
@@ -69,13 +68,6 @@ class ApiBasicArchitecture:
         self.date: Optional[str] = date
         self.count: Optional[int] = count
 
-    def header_to_json(self, url: str) -> Any:
-        headers: Dict[str, str] = {"accept": "application/json"}
-        response = requests.get(url, headers=headers)
-        info = response.json()
-
-        return info
-
     def __namesplit__(self) -> str:
         return self.name.upper()
 
@@ -88,7 +80,7 @@ class BithumCandlingAPI(ApiBasicArchitecture):
 
     # 시간별 통합으로 되어 있음
     def bithum_candle_price(self, mint: str) -> List:
-        return self.header_to_json(
+        return get_json_from_url(
             f"{BITHUM_API_URL}/candlestick/{self.name}_KRW/{mint}"
         )
 
@@ -119,19 +111,19 @@ class UpBitCandlingAPI(ApiBasicArchitecture):
         )
 
     def upbit_candle_price(self, mint: int) -> List:
-        return self.header_to_json(
+        return get_json_from_url(
             f"{UPBIT_API_URL}/candles/minutes/{mint}?{self.name_candle_count}"
         )
 
     # 상위 200개
     def upbit_candle_day_price(self) -> List:
-        return self.header_to_json(
+        return get_json_from_url(
             f"{UPBIT_API_URL}/candles/days?{self.name_candle_count}"
         )
 
     # 날짜 커스텀
     def upbit_candle_day_custom_price(self) -> List:
-        return self.header_to_json(
+        return get_json_from_url(
             f"{UPBIT_API_URL}/candles/days?{self.name_candle_count_date}"
         )
 
