@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 
 from typing import *
+
 from .api_util import get_json_from_url
 from .api_util import BITHUM_API_URL, UPBIT_API_URL
 
@@ -42,12 +43,11 @@ class CoinListDuplicateRemover:
         return [i for i in self.bithumb_list["data"]]
 
     def get_all_coins_without_duplicate(self) -> List[str]:
-        total: List[str] = (
-            self.get_krw_coins_from_upbit() + self.get_all_coins_from_bithumb()
-        )
-        return [data for data in set(total)]
-
-
+        total: List[str] = self.get_krw_coins_from_upbit() + self.get_all_coins_from_bithumb() 
+        result = [elem for elem, count in Counter(total).most_common() if count >= 2]
+        return result
+         
+        
 class ApiBasicArchitecture:
     """
     기본 클래스
@@ -185,7 +185,7 @@ def upbit_trade_all_list(
             upbit_init = UpBitCandlingAPI(
                 name=coin_name, count=200, date=a
             ).upbit_candle_day_custom_price()
-
+            print(coin_name, upbit_init)
             # API 호출
             market_init = api_injectional(upbit_init, upbit_init, coin_name=coin_name)
 
@@ -212,7 +212,7 @@ def upbit_trade_data_concat(data: List) -> pd.DataFrame:
     return result_upbit_data_concat
 
 
-def coin_trading_data_concatnate(coin_name: str):
+def coin_trading_data_concatnate(coin_name: str) -> List[Dict]:
     bithum_init = bithum_trade_all_list(coin_name=coin_name)
     upbit_init = upbit_trade_all_list(coin_name=coin_name, time_data=making_time())
     upbit_init = upbit_trade_data_concat(upbit_init)
@@ -225,4 +225,5 @@ def coin_trading_data_concatnate(coin_name: str):
     )
 
     return merge_data.to_dict(orient="records")
+
 

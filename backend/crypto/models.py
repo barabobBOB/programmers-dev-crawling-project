@@ -34,7 +34,8 @@ class CoinSymbol(Timestamp):
 
     
 class CoinPriceAllChartMarket(Timestamp):
-    coin_symbol     = models.ForeignKey(CoinSymbol, verbose_name=_("coin_symbol_fore"), on_delete=models.CASCADE)
+    coin_symbol     = models.ForeignKey(CoinSymbol, on_delete=models.CASCADE,
+                                         verbose_name=_("coin_symbol"), related_name="coin_price_all_chart_markets")
     price           = models.FloatField(verbose_name="price")
     trade_timestamp = models.DateField(verbose_name="all_coin_trade_time")         
 
@@ -43,5 +44,5 @@ class CoinPriceAllChartMarket(Timestamp):
         verbose_name_plural: str = _("CoinPriceAllChartMarkets")
 
     def __str__(self) -> str:
-        return self.coin_symbol
+        return f"{self.coin_symbol}: {self.price}"
 

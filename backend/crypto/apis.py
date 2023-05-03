@@ -3,6 +3,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
 
 from rest_framework.generics import ListAPIView, ListCreateAPIView
+from rest_framework.mixins import DestroyModelMixin
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -26,10 +27,13 @@ class MarketCoinListCreateInitalization(APIView):
 
     def post(self, request, format=None) -> Response:
         if request.data.get("is_sync"):
+            # 일괄 삭제
+            self.queryset.delete()
+            
+            # 일괄 생성
             for data in self.coin_name_list:
-                qs = self.queryset.filter(coin_symbol=data)
-                if not qs:
-                    self.queryset.create(coin_symbol=data, is_sync=True)
+                self.queryset.create(coin_symbol=data, is_sync=True)
+            
             return Response(
                 {"coin_list": self.coin_name_list}, status=status.HTTP_201_CREATED
             )
@@ -47,22 +51,16 @@ class CoinTradingCreateInitalization(ListCreateAPIView):
     lookup_field: str = "coin_symbol"
     
     def perform_create(self, serializer):
-        #{'timestamp': '2023-02-07', 
-        # 'coin_symbol': 'DOGE', 
-        # 'opening_price': 116.65, 
-        # 'trade_price': 115.3,
-        # 'high_price': 117.85, 
-        # 'low_price': 113.8}
-        qs = Q(self.queryset.filter(coin_symbol=serializer) & self.queryset.filter(is_sync=True))  
+        qs = self.queryset.filter(coin_symbol=serializer.data["coin_symbol"], is_sync=True)  
         if qs:
-            data_ = coin_trading_data_concatnate(coin_name=serializer["coin_symbol"])
+            data_ = coin_trading_data_concatnate(coin_name=serializer.data["coin_symbol"])
             for data in data_:
-                self.queryset.create(
-                    coin_symbol=data["coin_symbol"],
+                CoinPriceAllChartMarket.objects.create(
+                    coin_symbol=qs.first(),
                     price=data["trade_price"],
                     trade_timestamp=data["timestamp"]
-                ).save()
-      
+                )
+
       
 # 코인 리스트 필터
 class CoinTotalListViewInitailization(ListAPIView):
@@ -71,4 +69,5 @@ class CoinTotalListViewInitailization(ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = CoinListUpperFilter
     filterset_fields = ["coin_symbol"]
+
 
