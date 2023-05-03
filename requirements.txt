@@ -2,3 +2,4 @@ django
 djangorestframework 
 django-filter
 django-redis
+drf_yasg
