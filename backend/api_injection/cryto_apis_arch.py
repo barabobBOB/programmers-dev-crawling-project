@@ -1,33 +1,7 @@
-<<<<<<< HEAD
 from typing import List, Dict
 from collections import Counter
 from .api_util import get_json_from_url
 from .api_util import BITHUM_API_URL, UPBIT_API_URL
-=======
-import time
-import datetime
-import requests
-import pandas as pd
-from typing import *
-from api_injection.api_util import get_json_from_url
-from api_injection.api_util import BITHUM_API_URL, UPBIT_API_URL
-
-
-
-def making_time() -> List:
-    # 현재 시간 구하기
-    now = datetime.datetime.now()
-
-    # 목표 날짜 구하기
-    # 현재 시간으로부터 200일씩 뒤로 가면서 datetime 객체 생성하기
-    target_date = datetime.datetime(2013, 12, 27, 0, 0, 0)
-    result = []
-    while now >= target_date:
-        result.append(now)
-        now -= datetime.timedelta(days=200)
-
-    return result
->>>>>>> feat/#4
 
 
 # 코인 심볼 중복 제거

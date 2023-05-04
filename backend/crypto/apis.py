@@ -6,12 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from api_injection.cryto_apis_arch import CoinListDuplicateRemover
-<<<<<<< HEAD
-from .models import *
-=======
 from api_injection.crypto_apis import *
+
 from .models import * 
->>>>>>> feat/#4
 from .serializer import *
 
 
@@ -39,63 +36,21 @@ class MarketCoinListCreateInitalization(APIView):
                 status=status.HTTP_201_CREATED
             )
         else:
-<<<<<<< HEAD
             return Response(
                 {"error": "Not coin list synchronization"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
 
-class CoinTotalListViewInitailization(ListAPIView):
-=======
-            return Response({"error": "Not coin list synchronization"}, status=status.HTTP_400_BAD_REQUEST)
-            
 # 코인 리스트 필터
-class CoinListViewSet(ListAPIView):
->>>>>>> feat/#4
+class CoinTotalListViewInitailization(ListAPIView):
     queryset = CoinSymbol.objects.all()
     serializer_class = CoinListSerializer
     filterset_class = CoinListUpperFilter
-<<<<<<< HEAD
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["coin_symbol"]  
-=======
-    filterset_fields = ['coin_symbol']
 
-# 공통된 코인 리스트 업데이트
-# 현재 DB에 저장된 코인들 외에 다른 공통된 코인이 생기면 그 코인만 업데이트시킴
-# 반대로 DB에 저장되어 있던 코인이 공통된 코인 목록에서 제외되면(한 거래소에서 상폐시켰을때) 그 코인은 DB에서 삭제시켜야함 : 구현
-class UpdateCoinList(CreateAPIView):
-    serializer_class = CoinListSerializer
-    lookup_field = "coin_symbol"
-    def post(self, request, format=None):
-        
-        #upbit = upbitAPI()
-        bithumb = bithumbAPI()
-        
-        #lst = upbit.get_tickers()
-        data = bithumb.get_tickers()
-        #data = ExchangeAPI.removeDuplication(lst,lst2)
-
-        qs = CoinSymbol.objects.all()
-        qsList = [q.coin_symbol for q in qs]
-        
-        deleteList = list(set(qsList)-set(data))
-        addList = list(set(data)-set(qsList))
-        addObj = [{"coin_symbol": symbol} for symbol in addList]
-        
-        dc = CoinSymbol.objects.filter(coin_symbol__in=deleteList).delete()
-        serializer = CoinListSerializer(data=addObj, many=True)
-
-        if serializer.is_valid():
-            try:
-                serializer.save()
-                return Response({'success': True, 'update_coin_count': len(serializer.validated_data), 'delete_coin_count':dc, 'error_msg':""})
-            except Exception as e:
-                return Response({'success': False, 'update_coin_count': 0, 'delete_count':dc, 'error_msg': e})
-        else:
-            return Response({'success': False, 'update_coin_count': 0, 'delete_count':dc, 'error_msg':serializer.errors[0]})
-        
+      
 # 특정 코인 가격 업데이트 후, 업데이트 한 데이터 Response
 class UpdateCoinPrice(APIView):
     def post(self, request, coin_symbol, format=None):
@@ -136,6 +91,7 @@ class UpdateCoinPrice(APIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 # 특정 코인의 과거 가격 데이터
 class CoinPriceView(ListAPIView):
     serializer_class = CoinPriceSerializer
@@ -145,4 +101,3 @@ class CoinPriceView(ListAPIView):
         coin_symbol = self.kwargs.get(self.lookup_field)
         queryset = CoinPriceAllChartMarket.objects.filter(coin_symbol=coin_symbol).order_by('trade_timestamp')
         return queryset
->>>>>>> feat/#4
