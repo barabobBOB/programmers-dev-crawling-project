@@ -4,8 +4,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-import pandas as pd
 import time
+import sqlite3
+from os import path
 
 chrome_options = Options()
 # chrome_options.add_experimental_option("detach", True)
@@ -48,6 +49,29 @@ def google_searching(coiname):
 
 titles, dates, urls = google_searching(COIN_NAME)
 
-dicnews = {}
+# list to dict
+dictnews = {}
 for i in range(len(titles)):
-    dicnews[i] = [titles[i], dates[i], urls[i]]
+    dictnews[i] = [titles[i], dates[i], urls[i]]
+
+
+if not path.exists('google_news.db'):
+    conn = sqlite3.connect('google_news.db')
+    cur = conn.cursor()
+    conn.execute("create table google (id integer, name text ,titles text, dates text, urls text)")
+else:
+    conn = sqlite3.connect('google_news.db')
+    cur = conn.cursor()
+
+for i in dictnews: 
+    title = dictnews[i][0]
+    date = dictnews[i][1]
+    url = dictnews[i][2]
+
+    title = title.replace("'","''")
+
+    sql = f"insert into google values ({i}, '{COIN_NAME}', '{title}', '{date}', '{url}')"
+    cur.execute(sql)
+
+conn.commit()
+conn.close()
