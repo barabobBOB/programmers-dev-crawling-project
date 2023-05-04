@@ -111,19 +111,9 @@ class RecentNews(APIView):
 
         return Response(coinness_news, status=status.HTTP_200_OK)
 
-# class CoinnessNewsView(APIView):
-#     def get(self):
-#         coinness_news = coinness_crawling()
-#
-#         coinness_news.reverse()
-#
-#         for news in coinness_news:
-#             CoinnessNews.objects.create(title = news['title'], content = news['content'], date = news['date'], time = news['time'])
-#
-#         queryset = CoinnessNews.objects.all()
-#
-#         if coinness_news.is_valid():
-#             coinness_news.save()
-#             return Response(coinness_news.data, status=status.HTTP_200_OK)
-#         else:
-#             return Response(coinness_news.errors, status=status.HTTP_400_BAD_REQUEST)
+# 최신 뉴스 데이터 10개 추출
+class RecentNewsView(APIView):
+    def get(self, request):
+        queryset = CoinnessNews.objects.all()
+        serializer = RecentNewsSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
