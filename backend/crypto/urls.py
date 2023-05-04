@@ -23,4 +23,9 @@ urlpatterns = [
          apis.CoinPriceView.as_view(),
          name="coin_price"
     ),
+
+    path("api-v1/news/recent",
+         apis.RecentNews.as_view(),
+         name="recent_news"
+         ),
 ]
