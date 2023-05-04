@@ -6,7 +6,7 @@ from selenium import webdriver
 
 
 # 크롤링 데이터 파싱
-def parsring(contect) -> dict:
+def parsing(contect) -> dict:
     date = ''
     news = []
     # 기사 날짜
@@ -61,7 +61,7 @@ def coinness_crawling():
         try:
             contect_div = driver.find_element(By.XPATH,
                                               '//*[@id="root"]/div/div[1]/div/main/div[2]/div[' + str(i) + ']')
-            data = parsring(contect_div)
+            data = parsing(contect_div)
         except:
             print('로딩된 기사 모두 추출 완료')
 
