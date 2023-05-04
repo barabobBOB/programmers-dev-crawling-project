@@ -12,7 +12,6 @@ class Timestamp(models.Model):
         
     class Meta:
         abstract: bool = True
-    
 
 class CoinSymbol(Timestamp):
     coin_symbol = models.CharField(max_length=10, unique=True, primary_key=True, verbose_name=_("coin_symbol"))
@@ -44,4 +43,10 @@ class CoinPriceAllChartMarket(Timestamp):
 
     def __str__(self) -> str:
         return f"{self.coin_symbol}: {self.price}"
+
+class CoinnessNews(Timestamp):
+    title   = models.CharField(max_length=200)
+    content = models.CharField(max_length=400)
+    date    = models.CharField(max_length=20)
+    time    = models.CharField(max_length=10)
 
