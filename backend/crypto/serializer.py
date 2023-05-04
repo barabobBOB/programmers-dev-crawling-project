@@ -5,12 +5,6 @@ from typing import *
 from .models import *
 
 
-class CoinTradingDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CoinPriceAllChartMarket
-        fields = "__all__"
-
-
 class CoinListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoinSymbol
@@ -28,7 +22,7 @@ class CoinListUpperFilter(rest_framework.FilterSet):
     coin_symbol = UpperCaseFilter(lookup_expr="icontains")
 
     class Meta:
-        model = None
-        fields = None
+        model = CoinSymbol
+        fields = ["coin_symbol"]
 
 
