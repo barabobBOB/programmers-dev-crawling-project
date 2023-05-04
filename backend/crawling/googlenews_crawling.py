@@ -8,8 +8,9 @@ import pandas as pd
 import time
 
 chrome_options = Options()
-chrome_options.add_experimental_option("detach", True)
+# chrome_options.add_experimental_option("detach", True)
 chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
+chrome_options.add_argument('headless')
 service = Service(executable_path=ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
@@ -36,25 +37,17 @@ def google_searching(coiname):
 
     for feature in features:
         title = feature.find_element(By.CLASS_NAME, "DY5T1d.RZIKme").text
-        url = feature.find_element(By.CLASS_NAME, "DY5T1d.RZIKme").get_attribute("href")
         dt = feature.find_element(By.CLASS_NAME, "WW6dff.uQIVzc.Sksgp.slhocf").get_attribute("datetime")
+        url = feature.find_element(By.CLASS_NAME, "DY5T1d.RZIKme").get_attribute("href")
 
         titles.append(title)
+        dates.append(dt.replace('T',' ').replace('Z',''))
         urls.append(url)
-        dates.append(dt)
+ 
+    return titles, dates, urls
 
-        dfresult = pd.DataFrame(zip(titles, dates, urls))
-        dfresult.columns = ['title', 'date', 'url']
+titles, dates, urls = google_searching(COIN_NAME)
 
-    return dfresult
-
-def prep_dt(dfresult):
-    dfresult['date'] = dfresult['date'].str.replace('T', ' ')
-    dfresult['date'] = dfresult['date'].str.replace('Z', '')
-    dfresult['date'] = pd.to_datetime(dfresult['date'])
-
-    return dfresult
-
-dfresult = google_searching(COIN_NAME)
-dfresult = prep_dt(dfresult)
-print(dfresult)
+dicnews = {}
+for i in range(len(titles)):
+    dicnews[i] = [titles[i], dates[i], urls[i]]
