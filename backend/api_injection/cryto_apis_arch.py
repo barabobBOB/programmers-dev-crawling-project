@@ -200,8 +200,11 @@ def bithum_trade_all_list(coin_name: Optional[str] = None):
 
 # 데이터 병합
 def upbit_trade_data_concat(data: List) -> pd.DataFrame:
-    result_upbit_data_concat = pd.concat([df for [df] in data], ignore_index=True)
-    return result_upbit_data_concat
+    try:
+        result_upbit_data_concat = pd.concat([df for [df] in data], ignore_index=True)
+        return result_upbit_data_concat
+    except ValueError:
+        print(f"{data}를 합칠 수 업습니다 비어 있거나 존재하지 않습니다")
 
 
 def coin_trading_data_concatnate(coin_name: str) -> List[Dict]:

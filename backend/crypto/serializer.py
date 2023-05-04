@@ -8,7 +8,7 @@ from .models import *
 class CoinTradingDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoinPriceAllChartMarket
-        fields = ["coin_symbol"]
+        fields = "__all__"
 
 
 class CoinListSerializer(serializers.ModelSerializer):
@@ -24,11 +24,11 @@ class UpperCaseFilter(rest_framework.CharFilter):
             value: str = value.upper()
         return super().filter(qs, value)
 
-
 class CoinListUpperFilter(rest_framework.FilterSet):
     coin_symbol = UpperCaseFilter(lookup_expr="icontains")
 
     class Meta:
-        model = CoinSymbol
-        fields = ["coin_symbol"]
+        model = None
+        fields = None
+
 

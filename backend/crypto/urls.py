@@ -20,4 +20,10 @@ urlpatterns = [
          name="coin_data"
     ),
     
+    path(
+        "api-v1/cointrade",
+        apis.TradeCoinDataViewInitailization.as_view(),
+        name="coin_trade"
+    ),
+    
 ]
