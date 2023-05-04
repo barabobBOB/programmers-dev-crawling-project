@@ -47,7 +47,7 @@ def coinness_crawling():
     options = webdriver.ChromeOptions()  # Browser 세팅하기
     options.add_argument('lang=ko_KR')  # 사용언어 한국어
     options.add_argument('disable-gpu')  # 하드웨어 가속 안함
-    # options.add_argument('headless')  # 창 숨기기
+    options.add_argument('headless')  # 창 숨기기
 
     # 크롤링 할 URL
     url = 'https://coinness.com/'
