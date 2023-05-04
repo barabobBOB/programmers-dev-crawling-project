@@ -1,9 +1,8 @@
 from typing import Any
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
-from django.http import HttpResponse
 
-from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -54,36 +53,45 @@ class CoinListViewSet(ListAPIView):
 
 # 공통된 코인 리스트 업데이트
 # 현재 DB에 저장된 코인들 외에 다른 공통된 코인이 생기면 그 코인만 업데이트시킴
-# 반대로 DB에 저장되어 있던 코인이 공통된 코인 목록에서 제외되면(한 거래소에서 상폐시켰을때) 그 코인은 DB에서 삭제시켜야함 : 아직 미구현
+# 반대로 DB에 저장되어 있던 코인이 공통된 코인 목록에서 제외되면(한 거래소에서 상폐시켰을때) 그 코인은 DB에서 삭제시켜야함 : 구현
 class UpdateCoinList(CreateAPIView):
+    serializer_class = CoinListSerializer
     lookup_field = "coin_symbol"
     def post(self, request, format=None):
-        upbit = upbitAPI()
+        
+        #upbit = upbitAPI()
         bithumb = bithumbAPI()
         
-        data = ExchangeAPI.removeDuplication(upbit.get_tickers(),bithumb.get_tickers())
+        #lst = upbit.get_tickers()
+        data = bithumb.get_tickers()
+        #data = ExchangeAPI.removeDuplication(lst,lst2)
 
-        serializer = CoinListSerializer(data=data, many=True)
-        if not serializer.is_valid():
-            valid_data = serializer.validated_data
-            serializer = CoinListSerializer(data=valid_data, many=True)
+        qs = CoinSymbol.objects.all()
+        qsList = [q.coin_symbol for q in qs]
         
+        deleteList = list(set(qsList)-set(data))
+        addList = list(set(data)-set(qsList))
+        addObj = [{"coin_symbol": symbol} for symbol in addList]
+        
+        dc = CoinSymbol.objects.filter(coin_symbol__in=deleteList).delete()
+        serializer = CoinListSerializer(data=addObj, many=True)
+
         if serializer.is_valid():
             try:
                 serializer.save()
-                return Response({'success': True, 'update_count': len(valid_data)})
-            except:
-                return Response({'success': False, 'update_count': 0})
+                return Response({'success': True, 'update_coin_count': len(serializer.validated_data), 'delete_coin_count':dc, 'error_msg':""})
+            except Exception as e:
+                return Response({'success': False, 'update_coin_count': 0, 'delete_count':dc, 'error_msg': e})
+        else:
+            return Response({'success': False, 'update_coin_count': 0, 'delete_count':dc, 'error_msg':serializer.errors[0]})
         
 # 특정 코인 가격 업데이트 후, 업데이트 한 데이터 Response
 class UpdateCoinPrice(APIView):
     def post(self, request, coin_symbol, format=None):
-        upbit = upbitAPI()  
         bithumb = bithumbAPI()
         
         if coin_symbol == 'ALL':
             coins = CoinSymbol.objects.all()
-            coinList = []
             
             coinUpdateCnt = 0
             try:

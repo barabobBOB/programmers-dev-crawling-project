@@ -29,6 +29,7 @@ class ExchangeAPI:
     
     def removeDuplication(lst : List,lst2 : List) -> List[Dict]:
         res = list(set(lst)&set(lst2))
+        print(res)
         result = []
         for r in res:
             obj = {
@@ -147,7 +148,9 @@ class upbitAPI(ExchangeAPI):
         result = []
         
         for r in res:
-            result.append(r["market"].split('-')[1])
+            lst = r["market"].split('-')
+            if lst[0] == "KRW":
+                result.append(lst[1])
             
         return result
     
@@ -226,13 +229,14 @@ if __name__ == "__main__":
     upbit = upbitAPI()
     
     btickers = bithumb.get_tickers()
-    bprice = bithumb.get_current_price('BTC')
-    bcandles = bithumb.get_candles('BTC', _from='2022-01-01')
-    
+    # bprice = bithumb.get_current_price('BTC')
+    # bcandles = bithumb.get_candles('BTC', _from='2022-01-01')
+    print(len(btickers))
     utickers = upbit.get_tickers()
-    uprice = upbit.get_current_price('BTC')
-    ucandles = upbit.get_candles('BTC',_from='2022-01-01')
+    print(len(utickers))
+    # uprice = upbit.get_current_price('BTC')
+    # ucandles = upbit.get_candles('BTC',_from='2022-01-01')
     
     res = ExchangeAPI.removeDuplication(btickers, utickers)
-
-    print(ucandles['datetime'])
+    print(len(res))
+    
