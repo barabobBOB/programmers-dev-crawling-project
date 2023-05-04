@@ -9,7 +9,16 @@ class CoinListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoinSymbol
         fields = ["coin_symbol"]
+<<<<<<< HEAD
 
+=======
+        
+class CoinPriceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoinPriceAllChartMarket
+        fields = ["coin_symbol", "price", "trade_timestamp"]
+        
+>>>>>>> feat/#4
 
 # Filter
 class UpperCaseFilter(rest_framework.CharFilter):

@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     
     'accounts',
-    'crypto',
+    'crypto',   
 ]
 
 MIDDLEWARE = [
