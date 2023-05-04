@@ -24,8 +24,13 @@ urlpatterns = [
          name="coin_price"
     ),
 
-    path("api-v1/news/recent",
+    path("api-v1/recentnews/crawling",
          apis.RecentNews.as_view(),
+         name="recent_news_crawling"
+         ),
+
+    path("api-v1/recentnews",
+         apis.RecentNewsView.as_view(),
          name="recent_news"
          ),
 ]
