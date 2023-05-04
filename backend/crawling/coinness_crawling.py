@@ -4,11 +4,11 @@ from time import sleep
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 
+news = []
 
 # 크롤링 데이터 파싱
 def parsing(contect) -> dict:
     date = ''
-    news = []
     # 기사 날짜
     inner_divs = contect.find_elements(By.XPATH, './div[1]')
     for inner_div in inner_divs:
@@ -47,21 +47,34 @@ def coinness_crawling():
     options = webdriver.ChromeOptions()  # Browser 세팅하기
     options.add_argument('lang=ko_KR')  # 사용언어 한국어
     options.add_argument('disable-gpu')  # 하드웨어 가속 안함
-    options.add_argument('headless')  # 창 숨기기
+    # options.add_argument('headless')  # 창 숨기기
 
     # 크롤링 할 URL
     url = 'https://coinness.com/'
     driver = webdriver.Chrome(options=options)
     driver.get(url)
-
     # 사이트 로딩을 위한 시간 10초
-    sleep(10)
+    sleep(5)
+
+    for i in range(3):
+        # 스크롤 높이 가져옴
+        driver.execute_script("return document.body.scrollHeight")
+
+        # 끝까지 스크롤 다운
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+        sleep(2)
+
+        driver.find_element(By.XPATH, '//*[@id="root"]/div/div[1]/div/main/button').click()
+
+        sleep(2)
 
     for i in range(1, 100):
         try:
             contect_div = driver.find_element(By.XPATH,
                                               '//*[@id="root"]/div/div[1]/div/main/div[2]/div[' + str(i) + ']')
             data = parsing(contect_div)
+
         except:
             print('로딩된 기사 모두 추출 완료')
 
