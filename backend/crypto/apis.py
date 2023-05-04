@@ -46,7 +46,6 @@ class MarketCoinListCreateInitalization(APIView):
 # 모든 코인 거래 데이터 생성
 class CoinTradingCreateInitalization(APIView):
     queryset = CoinSymbol.objects.all()
-    lookup_field: str = "coin_symbol"
     
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
