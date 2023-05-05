@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import axios from 'axios';
 
 const ChartComponent = ({ chartData }) => {
   const [options, setOptions] = useState({

@@ -81,7 +81,9 @@ function CoinList({ getOneCoinData }) {
                     </p>
                     <button
                       className="btn btn-secondary"
-                      onClick={() => getOneCoinData(coinSymbol)}
+                      onClick={() => { getOneCoinData(coinSymbol);
+                        getCoinSymbolNewsList(coinSymbol);
+                      }}
                     >
                       Get Price
                     </button>

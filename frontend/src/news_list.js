@@ -6,6 +6,23 @@ const Newslist = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const [currentSymbolPage, setCurrentSymbolPage] = useState(1);
+  const [totalSymbolPages, setTotalSymbolPages] = useState(1);
+  const [newsSymbolList, setNewsSymbolList] = useState([]);
+
+  const getCoinSymbolNewsList = async (coinSymbol) => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/coin/api-v1/coinnews/${coinSymbol}?page=${currentSymbolPage}`,
+      );
+      console.log(response.data);
+      setNewsSymbolList(response.data.results);
+      setTotalSymbolPages(response.data.total_pages);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     const fetchNewsList = async () => {
       try {
@@ -72,6 +89,37 @@ const Newslist = () => {
     <>
       <div className="container-fluid">
         <div className="card shadow mb-4">
+        <div className="card-header py-3">
+            <h6 className="m-0 font-weight-bold text-primary">00coin news</h6>
+          </div>
+          <div className="card-body">
+            <div className="table-responsive">
+              <table
+                className="table table-bordered"
+                id="dataTable"
+                width="100%"
+                cellSpacing="0"
+              >
+                <thead>
+                  <tr>
+                    <th>name</th>
+                    <th>title</th>
+                    <th>url</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {newsSymbolList.map((news) => (
+                    <tr key={news.id}>
+                      <td style={{ fontSize: '10px' }}>{news.name}</td>
+                      <td style={{ fontSize: '10px' }}>{news.title}</td>
+                      <td style={{ fontSize: '10px' }}>{news.url}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {renderPagination()}
+            </div>
+          </div>
           <div className="card-header py-3">
             <h6 className="m-0 font-weight-bold text-primary">coin news</h6>
           </div>
