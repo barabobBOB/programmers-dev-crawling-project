@@ -131,9 +131,13 @@ class CoinNews(APIView):
         google_coin_news = news_crawling(coin_name)
 
         for news in google_coin_news:
-            CrawlingInformation.objects.create(name=news['name'], titles=news['title'], dates=news['date'], urls=news['url']).save()
+            CrawlingInformation.objects.create(name=news['name'], 
+                                               titles=news['title'], 
+                                               dates=news['date'], 
+                                               urls=news['url'])
             
         return Response(google_coin_news, status=status.HTTP_200_OK)
+    
     
 class CoinNewsView(APIView):
     def get(self, request, coin_name):
