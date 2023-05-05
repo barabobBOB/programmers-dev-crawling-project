@@ -15,13 +15,13 @@ urlpatterns = [
     ),    
     
     path("api-v1/updateprice/<str:coin_symbol>",
-         apis.UpdateCoinPrice.as_view(),
-         name='update_price'
+        apis.UpdateCoinPrice.as_view(),
+        name='update_price'
     ),
     
     path("api-v1/coinprice/<str:coin_symbol>",
-         apis.CoinPriceView.as_view(),
-         name="coin_price"
+        apis.CoinPriceView.as_view(),
+        name="coin_price"
     ),
 
     path("api-v1/recentnews/crawling",
@@ -33,4 +33,14 @@ urlpatterns = [
          apis.RecentNewsView.as_view(),
          name="recent_news"
          ),
+
+    path("api-v1/coinnews/crawling/<str:coin_name>",
+        apis.CoinNews.as_view(),
+        name="coin_news_crawlling"
+        ),
+
+    path("api-v1/coinnews/<str:coin_name>",
+        apis.CoinNewsView.as_view(),
+        name="coin_news"
+        )
 ]
