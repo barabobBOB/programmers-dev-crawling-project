@@ -38,26 +38,33 @@ const ChartComponent = ({ chartData }) => {
     },
   ]);
 
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
   useEffect(() => {
     if (chartData.length > 0) {
-      const categories = chartData.map((data) => data.trade_timestamp);
-      const seriesData = chartData.map((data) => data.price);
-      setOptions({
-        ...options,
-        xaxis: {
-          categories: categories,
-        },
-      });
-      setSeries([
-        {
-          name: chartData[0].coin_symbol,
-          data: seriesData,
-        },
-      ]);
+      const filteredData = chartData.filter(
+        (data) => new Date(data.trade_timestamp).getFullYear() === selectedYear,
+      );
+      if (filteredData.length > 0) {
+        const categories = filteredData.map((data) => data.trade_timestamp);
+        const seriesData = filteredData.map((data) => data.price);
+        setOptions({
+          ...options,
+          xaxis: {
+            categories: categories,
+          },
+        });
+        setSeries([
+          {
+            name: filteredData[0].coin_symbol,
+            data: seriesData,
+          },
+        ]);
+      }
     }
-  }, [chartData, options]);
+  }, [chartData, options, selectedYear]);
 
-  if (chartData.data && chartData.data.length === 0) {
+  if (!chartData || chartData.length === 0) {
     return null;
   }
 
@@ -68,18 +75,39 @@ const ChartComponent = ({ chartData }) => {
           <h6 className="m-0 font-weight-bold text-primary">
             Earnings Overview
           </h6>
-          <div className="dropdown no-arrow"></div>
+          <div className="dropdown no-arrow">
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            >
+              <option value={new Date().getFullYear()}>This year</option>
+              <option value={new Date().getFullYear() - 1}>Last year</option>
+              <option value={new Date().getFullYear() - 2}>
+                {new Date().getFullYear() - 2}
+              </option>
+              <option value={new Date().getFullYear() - 3}>
+                {new Date().getFullYear() - 3}
+              </option>
+              <option value={new Date().getFullYear() - 4}>
+                {new Date().getFullYear() - 4}
+              </option>
+            </select>
+          </div>
         </div>
 
         <div className="card-body">
           <div className="chart-area">
             <div id="chart">
-              <ReactApexChart
-                options={options}
-                series={series}
-                type="line"
-                height={350}
-              />
+              {series[0].data.length > 0 ? (
+                <ReactApexChart
+                  options={options}
+                  series={series}
+                  type="line"
+                  height={350}
+                />
+              ) : (
+                <p>No data available for selected year.</p>
+              )}
             </div>
           </div>
         </div>
