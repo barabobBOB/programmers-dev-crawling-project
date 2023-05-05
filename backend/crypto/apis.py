@@ -1,15 +1,14 @@
 from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework.generics import ListAPIView, CreateAPIView
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from api_injection.cryto_apis_arch import CoinListDuplicateRemover
 from api_injection.crypto_apis import *
-
-from .models import * 
+from api_injection.cryto_apis_arch import CoinListDuplicateRemover
+from crawling.coinness_crawling import *
 from .serializer import *
+from .models import *
 
 from crawling.googlenews_crawling import *
 
@@ -59,7 +58,6 @@ class UpdateCoinPrice(APIView):
         
         if coin_symbol == 'ALL':
             coins = CoinSymbol.objects.all()
-            
             coinUpdateCnt = 0
             try:
                 for coin in coins:
@@ -68,6 +66,7 @@ class UpdateCoinPrice(APIView):
                         continue
                     else:
                         candles = bithumb.get_candles(coin.coin_symbol)
+                        print(candles)
                         serializer = CoinPriceSerializer(data=candles, many=True)
                         
                         if serializer.is_valid():
@@ -103,6 +102,28 @@ class CoinPriceView(ListAPIView):
         queryset = CoinPriceAllChartMarket.objects.filter(coin_symbol=coin_symbol).order_by('trade_timestamp')
         return queryset
 
+
+# 최신 뉴스 10개 크롤링
+class RecentNews(APIView):
+    def get(self, request):
+        coinness_news = coinness_crawling()
+        coinness_news.reverse()
+
+        for news in coinness_news:
+            CoinnessNews.objects.create(title=news['title'], 
+                                        content=news['content'], 
+                                        date=news['date'], 
+                                        time=news['time'])
+
+        return Response(coinness_news, status=status.HTTP_200_OK)
+
+
+# 최신 뉴스 데이터 10개 추출
+class RecentNewsView(APIView):
+    def get(self, request):
+        queryset = CoinnessNews.objects.all()
+        serializer = RecentNewsSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 class CoinNews(APIView):
     def get(self, request):
         google_coin_news = news_crawling()

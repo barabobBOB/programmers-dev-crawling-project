@@ -12,7 +12,7 @@ class Timestamp(models.Model):
         
     class Meta:
         abstract: bool = True
-    
+
 
 class CoinSymbol(Timestamp):
     coin_symbol = models.CharField(max_length=10, unique=True, primary_key=True, verbose_name=_("coin_symbol"))
@@ -34,7 +34,7 @@ class CoinSymbol(Timestamp):
 
     
 class CoinPriceAllChartMarket(Timestamp):
-    coin_symbol     = models.CharField(max_length=15, unique=True, primary_key=True, verbose_name=_("coin_symbol"))
+    coin_symbol     = models.CharField(max_length=15, verbose_name=_("coin_symbol"))
     price           = models.FloatField(verbose_name="price")
     trade_timestamp = models.DateField(verbose_name="all_coin_trade_time")         
 
@@ -44,6 +44,16 @@ class CoinPriceAllChartMarket(Timestamp):
 
     def __str__(self) -> str:
         return f"{self.coin_symbol}: {self.price}"
+
+
+class CoinnessNews(Timestamp):
+    title   = models.CharField(max_length=200)
+    content = models.CharField(max_length=400)
+    date    = models.CharField(max_length=20)
+    time    = models.CharField(max_length=10)
+
+
+
 
 from django.utils.translation import gettext_lazy as _
 

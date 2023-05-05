@@ -16,8 +16,12 @@ class CoinPriceSerializer(serializers.ModelSerializer):
         model = CoinPriceAllChartMarket
         fields = ["coin_symbol", "price", "trade_timestamp"]
         
+class RecentNewsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoinnessNews
+        fields = ["date", "time", "title", "content"]
 
-# Filter
+    # Filter
 class UpperCaseFilter(rest_framework.CharFilter):
     def filter(self, qs: str, value: str) -> str:
         if value:
