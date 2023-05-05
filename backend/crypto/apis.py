@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 
 from api_injection.crypto_apis import *
@@ -40,15 +41,6 @@ class MarketCoinListCreateInitalization(APIView):
                 {"error": "Not coin list synchronization"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-
-# 코인 리스트 필터
-class CoinTotalListViewInitailization(ListAPIView):
-    queryset = CoinSymbol.objects.all()
-    serializer_class = CoinListSerializer
-    filterset_class = CoinListUpperFilter
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["coin_symbol"]  
 
       
 # 특정 코인 가격 업데이트 후, 업데이트 한 데이터 Response
@@ -92,17 +84,6 @@ class UpdateCoinPrice(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# 특정 코인의 과거 가격 데이터
-class CoinPriceView(ListAPIView):
-    serializer_class = CoinPriceSerializer
-    lookup_field = 'coin_symbol'
-
-    def get_queryset(self):
-        coin_symbol = self.kwargs.get(self.lookup_field)
-        queryset = CoinPriceAllChartMarket.objects.filter(coin_symbol=coin_symbol).order_by('trade_timestamp')
-        return queryset
-
-
 # 최신 뉴스 10개 크롤링
 class RecentNews(APIView):
     def get(self, request):
@@ -118,14 +99,7 @@ class RecentNews(APIView):
         return Response(coinness_news, status=status.HTTP_200_OK)
 
 
-# 최신 뉴스 데이터 10개 추출
-class RecentNewsView(APIView):
-    def get(self, request):
-        queryset = CoinnessNews.objects.all()
-        serializer = RecentNewsSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    
+# 해당 코인 뉴스 크롤링 
 class CoinNews(APIView):
     def get(self, request, coin_name):
         google_coin_news = news_crawling(coin_name)
@@ -137,12 +111,56 @@ class CoinNews(APIView):
                                                urls=news['url'])
             
         return Response(google_coin_news, status=status.HTTP_200_OK)
+
+
+# 특정 코인의 과거 가격 데이터
+class CoinPriceView(ListAPIView):
+    serializer_class = CoinPriceSerializer
+    lookup_field = 'coin_symbol'
+
+    def get_queryset(self):
+        coin_symbol = self.kwargs.get(self.lookup_field)
+        queryset = CoinPriceAllChartMarket.objects.filter(coin_symbol=coin_symbol).order_by('trade_timestamp')
+        return queryset
+
+
+# 코인 리스트 필터
+class CoinTotalListViewInitailization(ListAPIView):
+    queryset = CoinSymbol.objects.all()
+    serializer_class = CoinListSerializer
+    filterset_class = CoinListUpperFilter
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["coin_symbol"]  
     
     
-class CoinNewsView(APIView):
+class CoinNewsPagination(PageNumberPagination):
+    page_size = 10
+    page_query_param = 'page'
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+    
+
+# 최신 뉴스 데이터 10개 추출
+class RecentNewsView(ListAPIView):
+    queryset = CoinnessNews.objects.all()
+    serializer_class = RecentNewsSerializer
+    pagination_class = CoinNewsPagination
+    
+
+# 해당 코인 뉴스 추출
+class CoinNewsView(ListAPIView):
+    queryset = CrawlingInformation.objects.all()
+    serializer_class = CoinNewsSerializer
+    pagination_class = CoinNewsPagination
+
+    def get_queryset(self):
+        coin_name = self.kwargs['coin_name']
+        return self.queryset.filter(name=coin_name)
+
     def get(self, request, coin_name):
-        queryset = CrawlingInformation.objects.filter(name=coin_name)
-        if len(queryset) == 0:
-            return Response({"error": "없는데이터입니다"}, status=status.HTTP_400_BAD_REQUEST)
-        serializer = CoinNewsSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        qs = self.get_queryset()
+        if len(qs) == 0:
+            return Response({"error": "없는 데이터입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        page = self.paginate_queryset(qs)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
