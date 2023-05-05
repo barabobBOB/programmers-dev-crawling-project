@@ -13,6 +13,7 @@ class Timestamp(models.Model):
     class Meta:
         abstract: bool = True
 
+
 class CoinSymbol(Timestamp):
     coin_symbol = models.CharField(max_length=10, unique=True, primary_key=True, verbose_name=_("coin_symbol"))
     coin_uuid   = models.UUIDField(unique=True, default=uuid.uuid4, verbose_name=_("coin_uuid"))
