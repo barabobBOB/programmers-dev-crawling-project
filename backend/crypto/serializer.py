@@ -32,4 +32,7 @@ class CoinListUpperFilter(rest_framework.FilterSet):
         model = CoinSymbol
         fields = ["coin_symbol"]
 
-
+class CoinNewsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CrawlingInformation
+        fields = ["name", "titles", "urls", "dates"]

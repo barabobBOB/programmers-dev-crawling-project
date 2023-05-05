@@ -5,73 +5,47 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
-import sqlite3
-from os import path
 
-chrome_options = Options()
-# chrome_options.add_experimental_option("detach", True)
-chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
-chrome_options.add_argument('headless')
-service = Service(executable_path=ChromeDriverManager().install())
-driver = webdriver.Chrome(service=service, options=chrome_options)
-
-URL = "https://news.google.com/home?hl=ko&gl=KR&ceid=KR:ko"
-COIN_NAME = 'btc'
-
-driver.get(URL)
-
-time.sleep(3)
-
-def google_searching(coiname):
-    # 검색창 선택
-    element = driver.find_element(By.CLASS_NAME, "Ax4B8.ZAGvjd")
-    element.send_keys(coiname)
-    element.send_keys(Keys.ENTER)
-    time.sleep(2)
-
-    # 각 기사 박스 선택
-    features = driver.find_elements(By.CLASS_NAME, "MQsxIb.xTewfe.R7GTQ.keNKEd.j7vNaf.Cc0Z5d.EjqUne")
-
-    titles = []
-    urls = []
-    dates = []
-
+def data_parsing(COIN_NAME, features):
+    result = []
     for feature in features:
         title = feature.find_element(By.CLASS_NAME, "DY5T1d.RZIKme").text
         dt = feature.find_element(By.CLASS_NAME, "WW6dff.uQIVzc.Sksgp.slhocf").get_attribute("datetime")
         url = feature.find_element(By.CLASS_NAME, "DY5T1d.RZIKme").get_attribute("href")
 
-        titles.append(title)
-        dates.append(dt.replace('T',' ').replace('Z',''))
-        urls.append(url)
- 
-    return titles, dates, urls
+        news = {
+            'name': COIN_NAME,
+            'title': title,
+            'date': dt.replace('T',' ').replace('Z',''),
+            'url': url
+        }
 
-titles, dates, urls = google_searching(COIN_NAME)
+        result.append(news)
+    return result
 
-# list to dict
-dictnews = {}
-for i in range(len(titles)):
-    dictnews[i] = [titles[i], dates[i], urls[i]]
+def news_crawling():
+    chrome_options = Options()
+    # chrome_options.add_experimental_option("detach", True)
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    chrome_options.add_argument('headless')
+    service = Service(executable_path=ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
+    URL = "https://news.google.com/home?hl=ko&gl=KR&ceid=KR:ko"
+    COIN_NAME = 'btc'
 
-if not path.exists('google_news.db'):
-    conn = sqlite3.connect('google_news.db')
-    cur = conn.cursor()
-    conn.execute("create table google (id integer, name text ,titles text, dates text, urls text)")
-else:
-    conn = sqlite3.connect('google_news.db')
-    cur = conn.cursor()
+    driver.get(URL)
 
-for i in dictnews: 
-    title = dictnews[i][0]
-    date = dictnews[i][1]
-    url = dictnews[i][2]
+    time.sleep(3)
+    
+    # 검색창 선택
+    element = driver.find_element(By.CLASS_NAME, "Ax4B8.ZAGvjd")
+    element.send_keys(COIN_NAME)
+    element.send_keys(Keys.ENTER)
+    time.sleep(2)
 
-    title = title.replace("'","''")
+    # 각 기사 박스 선택
+    features = driver.find_elements(By.CLASS_NAME, "MQsxIb.xTewfe.R7GTQ.keNKEd.j7vNaf.Cc0Z5d.EjqUne")
+    result = data_parsing(COIN_NAME, features)
 
-    sql = f"insert into google values ({i}, '{COIN_NAME}', '{title}', '{date}', '{url}')"
-    cur.execute(sql)
-
-conn.commit()
-conn.close()
+    return result

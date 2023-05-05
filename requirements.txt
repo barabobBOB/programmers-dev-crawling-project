@@ -1,5 +1,8 @@
 django
 djangorestframework 
+requests
+bs4
+selenium
 django-filter
 django-redis
 drf_yasg

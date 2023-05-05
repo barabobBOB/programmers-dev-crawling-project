@@ -45,3 +45,20 @@ class CoinPriceAllChartMarket(Timestamp):
     def __str__(self) -> str:
         return f"{self.coin_symbol}: {self.price}"
 
+from django.utils.translation import gettext_lazy as _
+
+# Create your models here.
+class CrawlingInformation(Timestamp):
+    
+    name = models.CharField(max_length=10)
+    titles = models.CharField(max_length=70)
+    urls = models.URLField()
+    dates = models.DateTimeField()
+
+    class Meta:
+        verbose_name = _("CrawlingInformation")
+        verbose_name_plural = _("CrawlingInformations")
+
+    # admin
+    def __str__(self):
+        return self.name

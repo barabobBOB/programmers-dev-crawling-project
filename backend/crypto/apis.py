@@ -11,6 +11,7 @@ from api_injection.crypto_apis import *
 from .models import * 
 from .serializer import *
 
+from crawling.googlenews_crawling import *
 
 # coin symbol 동기화
 class MarketCoinListCreateInitalization(APIView):
@@ -101,3 +102,18 @@ class CoinPriceView(ListAPIView):
         coin_symbol = self.kwargs.get(self.lookup_field)
         queryset = CoinPriceAllChartMarket.objects.filter(coin_symbol=coin_symbol).order_by('trade_timestamp')
         return queryset
+
+class CoinNews(APIView):
+    def get(self, request):
+        google_coin_news = news_crawling()
+
+        for news in google_coin_news:
+            CrawlingInformation.objects.create(name=news['name'], titles=news['title'], dates=news['date'], urls=news['url']).save()
+            
+        return Response(google_coin_news, status=status.HTTP_200_OK)
+    
+class CoinNewsView(APIView):
+    def get(self, request):
+        queryset = CrawlingInformation.objects.all()
+        serializer = CoinNewsSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
