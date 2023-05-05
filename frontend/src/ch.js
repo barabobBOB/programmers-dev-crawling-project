@@ -1,83 +1,47 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import Chart from "chart.js";
+import Chart from 'chart.js/auto';
 
-const CoinChart = ({ coinSymbol }) => {
-  const [priceData, setPriceData] = useState([]);
+const drawChart = (coinSymbol, data) => {
+  const ctx = document.getElementById(`coinChart-${coinSymbol}`);
+  if (!ctx) {
+    return;
+  }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/coin/api-v1/updateprice/${coinSymbol}`
-        );
-        setPriceData(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchData();
-  }, [coinSymbol]);
-
-  useEffect(() => {
-    if (priceData.length === 0) {
-      return;
-    }
-
-    const ctx = document.getElementById(`coin-chart-${coinSymbol}`).getContext("2d");
-
-    const data = {
-      labels: priceData.map((data) => data.trade_timestamp),
-      datasets: [
-        {
-          label: `Price of ${coinSymbol}`,
-          data: priceData.map((data) => data.price),
-          backgroundColor: "rgba(75, 192, 192, 0.2)",
-          borderColor: "rgba(75, 192, 192, 1)",
-          borderWidth: 1,
-        },
-      ],
-    };
-
-    const options = {
-      scales: {
-        xAxes: [
-          {
-            type: "time",
-            time: {
-              unit: "day",
-              displayFormats: {
-                day: "MMM DD",
-              },
-            },
-            ticks: {
-              source: "labels",
-            },
-          },
-        ],
+  const chartData = {
+    labels: data.map((d) => d.trade_timestamp),
+    datasets: [
+      {
+        label: `${coinSymbol} Price`,
+        data: data.map((d) => d.price),
+        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+        borderColor: 'rgba(78, 115, 223, 1)',
+        borderWidth: 1,
       },
-    };
+    ],
+  };
 
-    new Chart(ctx, {
-      type: "line",
-      data: data,
-      options: options,
-    });
-  }, [priceData, coinSymbol]);
+  const chartOptions = {
+    scales: {
+      x: {
+        type: 'time',
+        time: {
+          unit: 'day',
+        },
+      },
+      y: {
+        ticks: {
+          callback: function (value, index, values) {
+            return '$' + value.toLocaleString();
+          },
+        },
+      },
+    },
+  };
 
-  return (
-    <div className="card shadow mb-4">
-      <div className="card-header py-3">
-        <h6 className="m-0 font-weight-bold text-primary">{coinSymbol} Price Overview</h6>
-      </div>
-      <div className="card-body">
-        <div className="chart-area">
-          <canvas id={`coin-chart-${coinSymbol}`}></canvas>
-        </div>
-      </div>
-    </div>
-  );
+  new Chart(ctx, {
+    type: 'line',
+    data: chartData,
+    options: chartOptions,
+  });
 };
 
-export default CoinChart;
+export default drawChart;
