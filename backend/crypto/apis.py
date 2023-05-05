@@ -58,7 +58,6 @@ class UpdateCoinPrice(APIView):
         
         if coin_symbol == 'ALL':
             coins = CoinSymbol.objects.all()
-            
             coinUpdateCnt = 0
             try:
                 for coin in coins:
@@ -67,6 +66,7 @@ class UpdateCoinPrice(APIView):
                         continue
                     else:
                         candles = bithumb.get_candles(coin.coin_symbol)
+                        print(candles)
                         serializer = CoinPriceSerializer(data=candles, many=True)
                         
                         if serializer.is_valid():

@@ -1,5 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import CoinList from './App';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(
+  <React.StrictMode>
+    <CoinList />
+  </React.StrictMode>,
+  document.getElementById('root')
+);

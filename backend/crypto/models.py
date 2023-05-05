@@ -34,7 +34,7 @@ class CoinSymbol(Timestamp):
 
     
 class CoinPriceAllChartMarket(Timestamp):
-    coin_symbol     = models.CharField(max_length=15, unique=True, primary_key=True, verbose_name=_("coin_symbol"))
+    coin_symbol     = models.CharField(max_length=15, verbose_name=_("coin_symbol"))
     price           = models.FloatField(verbose_name="price")
     trade_timestamp = models.DateField(verbose_name="all_coin_trade_time")         
 
@@ -44,4 +44,6 @@ class CoinPriceAllChartMarket(Timestamp):
 
     def __str__(self) -> str:
         return f"{self.coin_symbol}: {self.price}"
+
+
 
