@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-function CoinList() {
+function CoinList({ getOneCoinData }) {
   const [coinList, setCoinList] = useState([]);
   const [coinPriceList, setCoinPriceList] = useState({});
-  const [chartData, setChartData] = useState({});
 
   const [loading, setLoading] = useState(false);
 
@@ -36,17 +35,6 @@ function CoinList() {
       console.error(error);
     }
   }
-
-  const getOneCoinData = async (coinSymbol) => {
-    try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/coin/api-v1/coinprice/${coinSymbol}`,
-      );
-      setChartData(response);
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   async function handleSync() {
     setLoading(true);
