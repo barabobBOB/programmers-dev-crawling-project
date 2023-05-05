@@ -1,16 +1,14 @@
 from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework.generics import ListAPIView, CreateAPIView
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from api_injection.cryto_apis_arch import CoinListDuplicateRemover
 from api_injection.crypto_apis import *
-
-from .models import * 
+from api_injection.cryto_apis_arch import CoinListDuplicateRemover
+from crawling.coinness_crawling import *
 from .serializer import *
-
+from .models import *
 
 # coin symbol 동기화
 class MarketCoinListCreateInitalization(APIView):
@@ -101,3 +99,21 @@ class CoinPriceView(ListAPIView):
         coin_symbol = self.kwargs.get(self.lookup_field)
         queryset = CoinPriceAllChartMarket.objects.filter(coin_symbol=coin_symbol).order_by('trade_timestamp')
         return queryset
+
+# 최신 뉴스 10개 크롤링
+class RecentNews(APIView):
+    def get(self, request):
+        coinness_news = coinness_crawling()
+        coinness_news.reverse()
+
+        for news in coinness_news:
+            CoinnessNews.objects.create(title = news['title'], content = news['content'], date = news['date'], time = news['time']).save()
+
+        return Response(coinness_news, status=status.HTTP_200_OK)
+
+# 최신 뉴스 데이터 10개 추출
+class RecentNewsView(APIView):
+    def get(self, request):
+        queryset = CoinnessNews.objects.all()
+        serializer = RecentNewsSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
