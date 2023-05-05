@@ -34,12 +34,12 @@ urlpatterns = [
          name="recent_news"
          ),
 
-    path("api-v1/coinnews/crawling",
+    path("api-v1/coinnews/crawling/<str:coin_name>",
         apis.CoinNews.as_view(),
         name="coin_news_crawlling"
         ),
 
-    path("api-v1/coinnews",
+    path("api-v1/coinnews/<str:coin_name>",
         apis.CoinNewsView.as_view(),
         name="coin_news"
         )

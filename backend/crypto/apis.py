@@ -124,9 +124,11 @@ class RecentNewsView(APIView):
         queryset = CoinnessNews.objects.all()
         serializer = RecentNewsSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
 class CoinNews(APIView):
-    def get(self, request):
-        google_coin_news = news_crawling()
+    def get(self, request, coin_name):
+        google_coin_news = news_crawling(coin_name)
 
         for news in google_coin_news:
             CrawlingInformation.objects.create(name=news['name'], titles=news['title'], dates=news['date'], urls=news['url']).save()
@@ -134,7 +136,9 @@ class CoinNews(APIView):
         return Response(google_coin_news, status=status.HTTP_200_OK)
     
 class CoinNewsView(APIView):
-    def get(self, request):
-        queryset = CrawlingInformation.objects.all()
+    def get(self, request, coin_name):
+        queryset = CrawlingInformation.objects.filter(name=coin_name)
+        if len(queryset) == 0:
+            return Response({"error": "없는데이터입니다"}, status=status.HTTP_400_BAD_REQUEST)
         serializer = CoinNewsSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
