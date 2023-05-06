@@ -19,7 +19,7 @@ const Newslist = () => {
       }
     };
     fetchNewsList();
-  }, [currentPage]);
+  }, [currentPage, setNewsList, setTotalPages]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -87,9 +87,6 @@ const Newslist = () => {
           <div className="card-header py-3">
             <h6 className="m-0 font-weight-bold text-primary">coin news</h6>
           </div>
-          <button className="btn btn-primary" onClick={handleSyncClick}>
-            Sync
-          </button>
           <div className="card-body">
             <div className="table-responsive">
               <table

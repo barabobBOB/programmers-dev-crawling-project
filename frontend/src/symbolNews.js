@@ -14,12 +14,13 @@ const UseGetSymbolNews = ({ coinSymbol }) => {
         );
         setSymbolNewsListData(response.data.results);
         setSymbolTotalPage(response.data.total_pages);
+        console.log(response.data);
       } catch (e) {
         console.error(e);
       }
     };
     fetchNewsSymbolList(coinSymbol);
-  }, [currentPage]);
+  }, [currentPage, setSymbolNewsListData, setSymbolTotalPage, coinSymbol]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
