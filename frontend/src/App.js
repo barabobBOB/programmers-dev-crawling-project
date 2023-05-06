@@ -5,13 +5,12 @@ import ChartComponent from './ch';
 import useGetCoin from './useGetCoin';
 
 function App() {
-  const { chartData, getOneCoinData, getCoinSymbolNewsList } = useGetCoin();
-
+  const { chartData, getOneCoinData } = useGetCoin();
   return (
     <div>
       <div style={{ display: 'flex' }}>
         <ChartComponent chartData={chartData} />
-        <CoinList getOneCoinData={getOneCoinData} getCoinSymbolNewsList={getCoinSymbolNewsList}/>
+        <CoinList getOneCoinData={getOneCoinData} />
       </div>
       <Newslist />
     </div>
