@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+// import { getCoinSymbolNewsList } from './symbolNews';
 
-function CoinList({ getOneCoinData }) {
+function CoinList({ getOneCoinData, setClickedSymbol}) {
   const [coinList, setCoinList] = useState([]);
   const [coinPriceList, setCoinPriceList] = useState({});
 
@@ -20,7 +21,7 @@ function CoinList({ getOneCoinData }) {
       }
     }
     fetchCoinList();
-  }, []);
+  }, [setCoinList]);
 
   async function fetchCoinPrice(coinSymbol) {
     try {
@@ -47,6 +48,8 @@ function CoinList({ getOneCoinData }) {
     }
     setLoading(false);
   }
+
+
 
   return (
     <div className="col-lg-1 col-xl-4">
@@ -81,7 +84,9 @@ function CoinList({ getOneCoinData }) {
                     </p>
                     <button
                       className="btn btn-secondary"
-                      onClick={() => getOneCoinData(coinSymbol)}
+                      onClick={() => { getOneCoinData(coinSymbol);
+                        setClickedSymbol(coinSymbol);
+                      }}
                     >
                       Get Price
                     </button>

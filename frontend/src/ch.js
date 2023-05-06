@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import axios from 'axios';
 
 const ChartComponent = ({ chartData }) => {
+
   const [options, setOptions] = useState({
     chart: {
       height: 350,
@@ -41,6 +43,7 @@ const ChartComponent = ({ chartData }) => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
+    if (chartData.length === 0) return;
     if (chartData.length > 0) {
       const filteredData = chartData.filter(
         (data) => new Date(data.trade_timestamp).getFullYear() === selectedYear,
@@ -62,11 +65,7 @@ const ChartComponent = ({ chartData }) => {
         ]);
       }
     }
-  }, [chartData, options, selectedYear]);
-
-  if (!chartData || chartData.length === 0) {
-    return null;
-  }
+  }, [chartData, selectedYear, setOptions, setSeries]);
 
   return (
     <div className="col-xl-7 col-lg-8">
@@ -98,7 +97,7 @@ const ChartComponent = ({ chartData }) => {
         <div className="card-body">
           <div className="chart-area">
             <div id="chart">
-              {series[0].data.length > 0 ? (
+              {chartData.length > 0 ? (
                 <ReactApexChart
                   options={options}
                   series={series}

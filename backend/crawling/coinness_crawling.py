@@ -1,6 +1,7 @@
 from time import sleep
 # import chromedriver_autoinstaller
 
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from typing import Dict
@@ -52,7 +53,7 @@ def coinness_crawling():
 
     # 크롤링 할 URL
     url = 'https://coinness.com/'
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
     driver.get(url)
     # 사이트 로딩을 위한 시간 10초
     sleep(5)

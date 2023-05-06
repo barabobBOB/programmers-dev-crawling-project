@@ -1,45 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Newslist = () => {
-  const [newsList, setNewsList] = useState([]);
+const UseGetSymbolNews = ({ coinSymbol }) => {
+  const [symbolNewsList, setSymbolNewsListData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [symbolTotalPage, setSymbolTotalPage] = useState(1);
 
   useEffect(() => {
-    const fetchNewsList = async () => {
+    const fetchNewsSymbolList = async (coinSymbol) => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/coin/api-v1/recentnews?page=${currentPage}`,
+          `http://127.0.0.1:8000/coin/api-v1/coinnews/${coinSymbol}?page=${currentPage}`,
         );
-        setNewsList(response.data.results);
-        setTotalPages(response.data.total_pages);
-      } catch (error) {
-        console.error(error);
+        setSymbolNewsListData(response.data.results);
+        setSymbolTotalPage(response.data.total_pages);
+        console.log(response.data);
+      } catch (e) {
+        console.error(e);
       }
     };
-    fetchNewsList();
-  }, [currentPage, setNewsList, setTotalPages]);
+    fetchNewsSymbolList(coinSymbol);
+  }, [currentPage, setSymbolNewsListData, setSymbolTotalPage, coinSymbol]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
-  const handleSyncClick = async () => {
-    try {
-      const response = await axios.get(
-        'http://127.0.0.1:8000/coin/api-v1/recentnews/crawling',
-      );
-      setCurrentPage(1);
-      setNewsList(response.data.results);
-      setTotalPages(response.data.total_pages);
-    } catch (error) {
-      console.error(error);
-    }
-  };
   const renderPagination = () => {
     const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
+    for (let i = 1; i <= symbolTotalPage; i++) {
       pages.push(
         <li
           key={i}
@@ -65,7 +54,7 @@ const Newslist = () => {
           {pages}
           <li
             className={`page-item${
-              currentPage === totalPages ? ' disabled' : ''
+              currentPage === symbolTotalPage ? ' disabled' : ''
             }`}
           >
             <button
@@ -79,13 +68,14 @@ const Newslist = () => {
       </nav>
     );
   };
-
   return (
     <>
       <div className="container-fluid">
         <div className="card shadow mb-4">
           <div className="card-header py-3">
-            <h6 className="m-0 font-weight-bold text-primary">coin news</h6>
+            <h6 className="m-0 font-weight-bold text-primary">
+              coin Symbol news
+            </h6>
           </div>
           <div className="card-body">
             <div className="table-responsive">
@@ -97,19 +87,21 @@ const Newslist = () => {
               >
                 <thead>
                   <tr>
-                    <th>date</th>
-                    <th>time</th>
-                    <th>title</th>
-                    <th>content</th>
+                    <th>name</th>
+                    <th>titles</th>
+                    <th>urls</th>
+                    <th>dates</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {newsList.map((news) => (
+                  {symbolNewsList.map((news) => (
                     <tr key={news.id}>
-                      <td style={{ fontSize: '10px' }}>{news.date}</td>
-                      <td style={{ fontSize: '10px' }}>{news.time}</td>
-                      <td style={{ fontSize: '10px' }}>{news.title}</td>
-                      <td style={{ fontSize: '13px' }}>{news.content}</td>
+                      <td style={{ fontSize: '10px' }}>{news.name}</td>
+                      <td style={{ fontSize: '10px' }}>{news.titles}</td>
+                      <td style={{ fontSize: '10px' }}>
+                        <a href={news.urls}> {news.urls}</a>
+                      </td>
+                      <td style={{ fontSize: '13px' }}>{news.dates}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -123,4 +115,4 @@ const Newslist = () => {
   );
 };
 
-export default Newslist;
+export default UseGetSymbolNews;
