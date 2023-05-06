@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+// import fetchNewsSymbolList from './symbolNews';
 
 function CoinList({ getOneCoinData }) {
   const [coinList, setCoinList] = useState([]);
   const [coinPriceList, setCoinPriceList] = useState({});
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     async function fetchCoinList() {
       try {
@@ -81,6 +83,7 @@ function CoinList({ getOneCoinData }) {
                       className="btn btn-secondary"
                       onClick={() => {
                         getOneCoinData(coinSymbol);
+                        // fetchNewsSymbolList(coinSymbol);
                       }}
                     >
                       Get Price

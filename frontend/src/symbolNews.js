@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const useGetSymbolNews = () => {
+const UseGetSymbolNews = ({ coinSymbol }) => {
   const [symbolNewsList, setSymbolNewsListData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [symbolTotalPage, setSymbolTotalPage] = useState(1);
@@ -10,7 +10,7 @@ const useGetSymbolNews = () => {
     const fetchNewsSymbolList = async (coinSymbol) => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/coin/api-v1/coinprice/${coinSymbol}?page=${currentPage}`,
+          `http://127.0.0.1:8000/coin/api-v1/coinnews/${coinSymbol}?page=${currentPage}`,
         );
         setSymbolNewsListData(response.data.results);
         setSymbolTotalPage(response.data.total_pages);
@@ -18,7 +18,7 @@ const useGetSymbolNews = () => {
         console.error(e);
       }
     };
-    fetchNewsSymbolList();
+    fetchNewsSymbolList(coinSymbol);
   }, [currentPage]);
 
   const handlePageChange = (page) => {
@@ -73,36 +73,6 @@ const useGetSymbolNews = () => {
         <div className="card shadow mb-4">
           <div className="card-header py-3">
             <h6 className="m-0 font-weight-bold text-primary">
-              coin Symbol New
-            </h6>
-          </div>
-          <div className="card-body">
-            <div className="table-responsive">
-              <table
-                className="table table-bordered"
-                id="dataTable"
-                width="100%"
-                cellSpacing="0"
-              >
-                <thead>
-                  <tr>
-                    <th>date</th>
-                    <th>time</th>
-                    <th>title</th>
-                    <th>content</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-              {renderPagination()}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="container-fluid">
-        <div className="card shadow mb-4">
-          <div className="card-header py-3">
-            <h6 className="m-0 font-weight-bold text-primary">
               coin Symbol news
             </h6>
           </div>
@@ -144,4 +114,4 @@ const useGetSymbolNews = () => {
   );
 };
 
-export default useGetSymbolNews;
+export default UseGetSymbolNews;
