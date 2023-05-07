@@ -32,6 +32,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
+    'django_apscheduler',
+
     
     'rest_framework',
     'django_filters',
@@ -40,6 +43,15 @@ INSTALLED_APPS = [
     
     'crypto',   
 ]
+
+# CRONJOBS = [
+#     ('*/1 * * * *', 'python manage.py runscript operator', '>> sch.log'),
+#     # '*/10 * * * *' 은 10분마다 실행을 의미합니다.
+#     # 'news_crawling_script'는 스케줄링할 스크립트 파일명입니다.
+# ]
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"  # Default
+
+SCHEDULER_DEFAULT = True
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',    
