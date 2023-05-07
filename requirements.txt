@@ -7,3 +7,4 @@ django-filter
 django-redis
 drf_yasg
 django-cors-headers               
+django-apscheduler

@@ -9,6 +9,9 @@ CORS_ALLOW_CREDENTIALS = True
 ALLOWED_HOSTS = []
 
 
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"  # Default
+SCHEDULER_DEFAULT = True
+
 REST_FRAMEWORK = {
     ###'NON_FIELD_ERRORS_KEY': 'error',###  요거 제외밑에부터       
     'DEFAULT_FILTER_BACKENDS': [
