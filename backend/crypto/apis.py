@@ -21,7 +21,7 @@ class MarketCoinListCreateInitalization(APIView):
         super().__init__(**kwargs)
         self.coin_name_list: List[
             str
-        ] = CoinListDuplicateRemover().get_all_coins_without_duplicate()
+        ] = CoinListDuplicateRemover().get_all_coins_from_bithumb()
 
     def post(self, request, format=None) -> Response:
         if request.data.get("is_sync"):
