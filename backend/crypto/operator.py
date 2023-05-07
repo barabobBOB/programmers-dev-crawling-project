@@ -8,8 +8,8 @@ def start():
     scheduler=BackgroundScheduler()
     scheduler.add_jobstore(DjangoJobStore(), 'djangojobstore')
     register_events(scheduler)
-    @scheduler.scheduled_job('interval', minutes=10, name='news_crawling')
+    @scheduler.scheduled_job('interval', seconds=30, name='news_crawling')
     def auto_check():
-        coin_news()
         recent_news()
+        coin_news()
     scheduler.start()
