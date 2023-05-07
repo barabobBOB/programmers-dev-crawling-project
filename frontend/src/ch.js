@@ -3,7 +3,6 @@ import ReactApexChart from 'react-apexcharts';
 import axios from 'axios';
 
 const ChartComponent = ({ chartData }) => {
-
   const [options, setOptions] = useState({
     chart: {
       height: 350,
@@ -43,7 +42,6 @@ const ChartComponent = ({ chartData }) => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
-    if (chartData.length === 0) return;
     if (chartData.length > 0) {
       const filteredData = chartData.filter(
         (data) => new Date(data.trade_timestamp).getFullYear() === selectedYear,
