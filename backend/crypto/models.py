@@ -53,17 +53,12 @@ class CoinnessNews(Timestamp):
     time    = models.CharField(max_length=10)
 
 
-
-
-from django.utils.translation import gettext_lazy as _
-
 # Create your models here.
 class CrawlingInformation(Timestamp):
-    
-    name = models.CharField(max_length=10)
+    name   = models.CharField(max_length=10)
     titles = models.CharField(max_length=70)
-    urls = models.URLField()
-    dates = models.DateTimeField()
+    urls   = models.URLField()
+    dates  = models.DateTimeField()
 
     class Meta:
         verbose_name = _("CrawlingInformation")
